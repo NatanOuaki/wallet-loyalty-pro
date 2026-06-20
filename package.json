@@ -1,0 +1,15 @@
+{
+  "name": "wallet-loyalty-pro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SaaS de carte de fidelite Apple Wallet et Google Wallet pour commercants.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "PORT=4173 node server.js",
+    "health": "node scripts/healthcheck.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ajouter ma carte fidelite</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="join-page">
+      <section class="join-hero">
+        <div>
+          <p class="eyebrow">Carte fidelite digitale</p>
+          <h1 id="joinTitle">Ajoutez votre carte au Wallet</h1>
+          <p id="joinRule" class="muted">Chargement du programme...</p>
+        </div>
+        <div class="wallet-preview">
+          <div class="wallet-pass" id="joinPreview">
+            <div class="pass-row"><span id="joinLogo">WL</span><div><small id="joinMerchant">Commerce</small><strong id="joinProgram">Programme</strong></div></div>
+            <div class="pass-score"><span>Solde</span><strong>0 / 10</strong></div>
+            <p id="joinHeroText">Votre recompense vous attend.</p>
+            <div class="stamps" id="joinStamps"></div>
+            <div class="qr-box" id="joinQr"></div>
+            <small id="joinFooter">Presentez cette carte en boutique.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel join-card">
+        <form id="joinForm">
+          <p class="eyebrow">Inscription</p>
+          <h2>Recevoir ma carte</h2>
+          <label>Nom <input id="joinName" required autocomplete="name"></label>
+          <label>Telephone <input id="joinPhone" type="tel" required autocomplete="tel"></label>
+          <label>Email <input id="joinEmail" type="email" autocomplete="email"></label>
+          <label class="checkline"><input id="joinConsent" type="checkbox"> J'accepte de recevoir les offres du commerce</label>
+          <button class="primary" type="submit">Creer ma carte</button>
+        </form>
+        <div class="notice hidden" id="joinResult"></div>
+      </section>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+      const slug = location.pathname.split("/").filter(Boolean).pop();
+      let program;
+      const $ = (selector) => document.querySelector(selector);
+      function toast(message) {
+        const el = $("#toast");
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => el.classList.remove("show"), 3200);
+      }
+      async function api(path, options = {}) {
+        const response = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Erreur");
+        return data;
+      }
+      function qr(container, seed) {
+        container.innerHTML = "";
+        let hash = 0;
+        for (const char of String(seed || slug)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+        for (let index = 0; index < 81; index += 1) {
+          const finder = (index < 21 && index % 9 < 3) || (index < 27 && index % 9 > 5) || (index > 53 && index % 9 < 3);
+          const bit = ((hash >> (index % 24)) + index * 7) % 3 !== 0;
+          const cell = document.createElement("span");
+          cell.className = `qr-cell ${finder || bit ? "" : "off"}`;
+          container.appendChild(cell);
+        }
+      }
+      function stamps(target) {
+        $("#joinStamps").innerHTML = Array.from({ length: Number(target || 10) }, () => "<span class='stamp'></span>").join("");
+      }
+      async function boot() {
+        try {
+          const data = await api(`/api/public/program/${slug}`);
+          program = data.program;
+          $("#joinTitle").textContent = `${data.merchant.businessName} vous invite`;
+          $("#joinRule").textContent = program.rewardRule;
+          $("#joinPreview").style.background = program.brandColor;
+          $("#joinPreview").style.color = program.cardTextColor || "#ffffff";
+          $("#joinLogo").textContent = program.logoText || "WL";
+          $("#joinMerchant").textContent = data.merchant.businessName;
+          $("#joinProgram").textContent = program.name;
+          $("#joinHeroText").textContent = program.cardHeroText || program.rewardRule;
+          $("#joinFooter").textContent = program.cardFooterText || "Presentez cette carte en boutique.";
+          stamps(program.target);
+          qr($("#joinQr"), slug);
+        } catch (error) {
+          $("#joinRule").textContent = error.message;
+          toast(error.message);
+        }
+      }
+      $("#joinForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          const data = await api("/api/public/customers", {
+            method: "POST",
+            body: JSON.stringify({
+              slug,
+              name: $("#joinName").value,
+              phone: $("#joinPhone").value,
+              email: $("#joinEmail").value,
+              consentMarketing: $("#joinConsent").checked
+            })
+          });
+          $("#joinForm").classList.add("hidden");
+          $("#joinResult").classList.remove("hidden");
+          $("#joinResult").innerHTML = `
+            <strong>Carte creee : ${data.customer.memberId}</strong>
+            <div class="wallet-link-list">
+              <a href="${data.customer.passUrls.apple}">Ajouter a Apple Wallet</a>
+              <a href="${data.customer.passUrls.google}">Ajouter a Google Wallet</a>
+            </div>
+          `;
+          qr($("#joinQr"), data.customer.memberId);
+          toast("Carte creee.");
+        } catch (error) {
+          toast(error.message);
+        }
+      });
+      boot();
+    </script>
+  </body>
+</html>

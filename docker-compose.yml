@@ -1,0 +1,12 @@
+services:
+  wallet-loyalty:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "4173:4173"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./tmp:/app/tmp
+      - ./secure:/secure:ro

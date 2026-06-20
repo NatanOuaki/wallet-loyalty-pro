@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wallet Loyalty Pro</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#app">Aller au contenu</a>
+
+    <section class="login-screen" id="loginScreen">
+      <form class="login-card" id="loginForm">
+        <p class="eyebrow">Wallet Loyalty Pro</p>
+        <h1>Plateforme fidelite Wallet</h1>
+        <p class="muted">Super admin : <strong>super@wallet.local</strong> / <strong>admin1234</strong></p>
+        <p class="muted">Commerce demo : <strong>admin@demo.local</strong> / <strong>demo1234</strong></p>
+        <label>Email <input id="loginEmail" type="email" value="super@wallet.local" autocomplete="email" required></label>
+        <label>Mot de passe <input id="loginPassword" type="password" value="admin1234" autocomplete="current-password" required></label>
+        <button class="primary" type="submit">Se connecter</button>
+      </form>
+    </section>
+
+    <div class="app-shell hidden" id="appShell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">WL</span>
+          <div>
+            <strong id="accountName">Compte</strong>
+            <small id="accountRole">Role</small>
+          </div>
+        </div>
+
+        <nav id="adminNav" class="hidden" aria-label="Navigation super admin">
+          <button class="nav-button active" data-view="admin-dashboard">Super admin</button>
+          <button class="nav-button" data-view="admin-merchants">Commerces</button>
+          <button class="nav-button" data-view="admin-design">Design carte</button>
+          <button class="nav-button" data-view="admin-deploy">Deploiement</button>
+        </nav>
+
+        <nav id="merchantNav" class="hidden" aria-label="Navigation commerce">
+          <button class="nav-button active" data-view="merchant-dashboard">Dashboard</button>
+          <button class="nav-button" data-view="merchant-customers">Clients</button>
+          <button class="nav-button" data-view="merchant-scan">Scan</button>
+          <button class="nav-button" data-view="merchant-campaigns">Campagnes</button>
+          <button class="nav-button" data-view="merchant-settings">Settings</button>
+        </nav>
+
+        <button class="ghost full" id="logoutButton" type="button">Deconnexion</button>
+      </aside>
+
+      <main id="app" class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="pageEyebrow">Systeme operationnel</p>
+            <h1 id="pageTitle">Dashboard</h1>
+          </div>
+          <div class="top-actions">
+            <a class="secondary link-button" id="joinLink" href="#" target="_blank" rel="noreferrer">Lien client</a>
+            <button class="secondary" id="exportButton" type="button">Exporter</button>
+          </div>
+        </header>
+
+        <section class="view active" id="view-admin-dashboard">
+          <div class="hero-band">
+            <div>
+              <p class="eyebrow">Ton cockpit</p>
+              <h2>Gere tous les commerces, leurs cartes Wallet et leurs abonnements.</h2>
+              <p>Tu peux onboarder un commerce, definir son lien public et designer sa carte depuis ton acces super admin.</p>
+            </div>
+            <div class="wallet-preview">
+              <div class="wallet-pass" id="adminWalletPreview">
+                <div class="pass-row"><span id="adminPassLogo">WL</span><div><small id="adminPassMerchant">Commerce</small><strong id="adminPassProgram">Carte fidelite</strong></div></div>
+                <div class="pass-score"><span>Solde</span><strong>4 / 10</strong></div>
+                <p id="adminPassRule">10 points = 1 recompense</p>
+                <div class="stamps" id="adminStampGrid"></div>
+                <div class="qr-box" id="adminQrPreview"></div>
+                <small>MEMBER-0001</small>
+              </div>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <article><span>Commerces</span><strong id="adminStatMerchants">0</strong></article>
+            <article><span>Actifs</span><strong id="adminStatActive">0</strong></article>
+            <article><span>Clients</span><strong id="adminStatCustomers">0</strong></article>
+            <article><span>Scans</span><strong id="adminStatTransactions">0</strong></article>
+          </div>
+        </section>
+
+        <section class="view" id="view-admin-merchants">
+          <div class="grid two">
+            <form class="panel" id="merchantCreateForm">
+              <p class="eyebrow">Onboarding</p>
+              <h2>Nouveau commerce</h2>
+              <label>Nom commerce <input id="newBusinessName" required placeholder="Maison Cafe"></label>
+              <label>Responsable <input id="newOwnerName" required placeholder="David Levy"></label>
+              <label>Email login <input id="newEmail" type="email" required placeholder="owner@commerce.com"></label>
+              <label>Mot de passe initial <input id="newPassword" value="demo1234" required></label>
+              <div class="field-row">
+                <label>Plan <select id="newPlan"><option>starter</option><option>growth</option><option>multi</option></select></label>
+                <label>Slug public <input id="newSlug" placeholder="maison-cafe"></label>
+              </div>
+              <button class="primary" type="submit">Creer le commerce</button>
+            </form>
+            <div class="panel">
+              <div class="section-title">
+                <div><p class="eyebrow">Souscriptions</p><h2>Commerces</h2></div>
+                <input class="search" id="merchantSearch" placeholder="Rechercher">
+              </div>
+              <div class="merchant-list" id="merchantList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-admin-design">
+          <div class="grid two">
+            <form class="panel" id="adminDesignForm">
+              <p class="eyebrow">Design Wallet</p>
+              <h2>Designer la carte d'un commerce</h2>
+              <label>Commerce <select id="designMerchantSelect"></select></label>
+              <label>Nom programme <input id="designProgramName" required></label>
+              <label>Regle <input id="designRewardRule" required></label>
+              <div class="field-row">
+                <label>Objectif <input id="designTarget" type="number" min="2" max="100" required></label>
+                <label>Points / scan <input id="designStampValue" type="number" min="1" max="25" required></label>
+              </div>
+              <div class="field-row">
+                <label>Couleur fond <input id="designBrandColor" type="color"></label>
+                <label>Accent <input id="designAccentColor" type="color"></label>
+              </div>
+              <div class="field-row">
+                <label>Texte <input id="designTextColor" type="color"></label>
+                <label>Logo texte <input id="designLogoText" maxlength="4"></label>
+              </div>
+              <label>Phrase centrale <input id="designHeroText"></label>
+              <label>Footer carte <input id="designFooterText"></label>
+              <button class="primary" type="submit">Sauver le design</button>
+            </form>
+            <div class="panel">
+              <p class="eyebrow">Preview</p>
+              <h2>Apercu live</h2>
+              <div class="wallet-preview light-preview">
+                <div class="wallet-pass" id="designPreview">
+                  <div class="pass-row"><span id="designPreviewLogo">WL</span><div><small id="designPreviewMerchant">Commerce</small><strong id="designPreviewProgram">Club</strong></div></div>
+                  <div class="pass-score"><span>Solde</span><strong>4 / 10</strong></div>
+                  <p id="designPreviewHero">Votre recompense vous attend.</p>
+                  <div class="stamps" id="designPreviewStamps"></div>
+                  <div class="qr-box" id="designQrPreview"></div>
+                  <small id="designPreviewFooter">Presentez cette carte en boutique.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-admin-deploy">
+          <div class="grid two">
+            <div class="panel">
+              <p class="eyebrow">Deploiement reel</p>
+              <h2>Ce qu'il reste pour publier</h2>
+              <ul class="checklist">
+                <li>Choisir l'hebergeur : Render, Railway, Fly.io, VPS ou autre.</li>
+                <li>Connecter un repo GitHub ou uploader ce dossier.</li>
+                <li>Configurer le domaine et HTTPS.</li>
+                <li>Ajouter les variables Apple / Google Wallet.</li>
+                <li>Tester un vrai iPhone et un vrai Android.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <p class="eyebrow">Wallet</p>
+              <h2>Statut integration</h2>
+              <div id="adminWalletStatus"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-merchant-dashboard">
+          <div class="hero-band">
+            <div>
+              <p class="eyebrow">Panel commerce</p>
+              <h2>Gere tes clients et leurs cartes de fidelite Wallet.</h2>
+              <p>Le lien client unique permet aux clients de s'inscrire seuls et d'ajouter la carte au Wallet.</p>
+            </div>
+            <div class="wallet-preview"><div class="wallet-pass" id="merchantWalletPass"><div class="pass-row"><span id="passLogo">WL</span><div><small id="passMerchant">Commerce</small><strong id="passProgram">Programme</strong></div></div><div class="pass-score"><span>Solde</span><strong id="passPoints">0 / 10</strong></div><p id="passRule">Regle</p><div class="stamps" id="stampGrid"></div><div class="qr-box" id="qrPreview"></div><small id="memberPreview">MEMBER-0001</small></div></div>
+          </div>
+          <div class="stats-grid">
+            <article><span>Clients</span><strong id="statClients">0</strong></article>
+            <article><span>Scans</span><strong id="statScans">0</strong></article>
+            <article><span>Recompenses</span><strong id="statRewards">0</strong></article>
+            <article><span>Points emis</span><strong id="statPoints">0</strong></article>
+          </div>
+          <div class="panel">
+            <p class="eyebrow">Lien public</p>
+            <h2>Inscription client autonome</h2>
+            <input id="merchantJoinUrl" readonly>
+            <p class="helper">Imprime ce lien en QR code : le client s'inscrit et ajoute directement Apple Wallet ou Google Wallet.</p>
+          </div>
+        </section>
+
+        <section class="view" id="view-merchant-customers">
+          <div class="panel">
+            <div class="section-title">
+              <div><p class="eyebrow">CRM</p><h2>Clients</h2></div>
+              <input class="search" id="customerSearch" placeholder="Rechercher client, tel, ID">
+            </div>
+            <div class="table-wrap"><table><thead><tr><th>Client</th><th>Contact</th><th>ID carte</th><th>Points</th><th>Wallet</th><th>Action</th></tr></thead><tbody id="customersTable"></tbody></table></div>
+          </div>
+        </section>
+
+        <section class="view" id="view-merchant-scan">
+          <div class="grid two">
+            <div class="panel">
+              <p class="eyebrow">Point de vente</p>
+              <h2>Scanner une carte</h2>
+              <video id="cameraPreview" class="camera hidden" playsinline muted></video>
+              <div class="field-row"><button class="secondary" id="startCamera" type="button">Activer camera</button><button class="ghost" id="stopCamera" type="button">Stop</button></div>
+              <form id="scanForm"><label>ID carte ou QR <input id="scanMemberId" required placeholder="MEMBER-0001"></label><label>Points <input id="scanPoints" type="number" value="1" min="-100" max="100"></label><button class="primary" type="submit">Ajouter les points</button></form>
+              <button class="danger" id="redeemButton" type="button">Utiliser une recompense</button>
+            </div>
+            <div class="panel"><p class="eyebrow">Operation</p><h2>Resultat caisse</h2><div class="scan-result" id="scanResult">Aucune operation.</div></div>
+          </div>
+        </section>
+
+        <section class="view" id="view-merchant-campaigns">
+          <div class="grid two">
+            <form class="panel" id="campaignForm"><p class="eyebrow">Marketing</p><h2>Campagne</h2><label>Titre <input id="campaignTitle" required></label><label>Message <textarea id="campaignMessage" required></textarea></label><label>Canal <select id="campaignChannel"><option value="manual">Manuel / export</option><option value="email">Email</option><option value="sms">SMS</option><option value="wallet">Notification Wallet</option></select></label><button class="primary" type="submit">Preparer la campagne</button></form>
+            <div class="panel"><p class="eyebrow">Historique</p><h2>Campagnes</h2><div class="campaign-list" id="campaignList"></div></div>
+          </div>
+        </section>
+
+        <section class="view" id="view-merchant-settings">
+          <div class="grid two">
+            <form class="panel" id="programForm"><p class="eyebrow">Programme</p><h2>Regles fidelite</h2><label>Nom programme <input id="programName" required></label><label>Regle <input id="rewardRule" required></label><div class="field-row"><label>Objectif <input id="target" type="number" min="2" max="100"></label><label>Points / scan <input id="stampValue" type="number" min="1" max="25"></label></div><button class="primary" type="submit">Enregistrer</button></form>
+            <div class="panel"><p class="eyebrow">Wallet</p><h2>Statut</h2><div id="walletStatus"></div></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
