@@ -10,20 +10,6 @@ services:
       - key: NODE_ENV
         value: production
       - key: BASE_URL
-        sync: false
+        value: https://wallet-loyalty-pro.onrender.com
       - key: DB_FILE
         value: data/render-db.json
-      - key: APPLE_PASS_TYPE_ID
-        sync: false
-      - key: APPLE_TEAM_ID
-        sync: false
-      - key: APPLE_CERT_P12
-        sync: false
-      - key: APPLE_CERT_PASSWORD
-        sync: false
-      - key: APPLE_WWDR_CERT
-        sync: false
-      - key: GOOGLE_ISSUER_ID
-        sync: false
-      - key: GOOGLE_SERVICE_ACCOUNT_JSON
-        sync: false
