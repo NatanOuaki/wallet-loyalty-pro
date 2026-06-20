@@ -9,19 +9,21 @@
   <body>
     <section class="login-screen">
       <div class="login-card">
-        <p class="eyebrow">Mode demo</p>
-        <h1>Google Wallet non configure</h1>
-        <p class="muted">
-          Cette page remplace le vrai lien Google Wallet tant que les variables
-          <strong>GOOGLE_ISSUER_ID</strong> et <strong>GOOGLE_SERVICE_ACCOUNT_JSON</strong>
-          ne sont pas configurees.
-        </p>
+        <p class="eyebrow">Wallet non configure</p>
+        <h1 id="title">Wallet non configure</h1>
+        <p class="muted" id="message"></p>
         <div class="notice" id="member"></div>
         <a class="secondary link-button" href="/">Retour dashboard</a>
       </div>
     </section>
     <script>
       const params = new URLSearchParams(location.search);
+      const platform = params.get("platform") === "apple" ? "Apple Wallet" : "Google Wallet";
+      const missing = platform === "Apple Wallet"
+        ? "APPLE_PASS_TYPE_ID, APPLE_TEAM_ID, APPLE_CERT_P12 et APPLE_WWDR_CERT"
+        : "GOOGLE_ISSUER_ID et GOOGLE_SERVICE_ACCOUNT_JSON";
+      document.querySelector("#title").textContent = `${platform} non configure`;
+      document.querySelector("#message").innerHTML = `Cette page remplace le vrai lien ${platform} tant que <strong>${missing}</strong> ne sont pas configures sur le serveur.`;
       document.querySelector("#member").textContent = `Carte : ${params.get("member") || "demo"}`;
     </script>
   </body>

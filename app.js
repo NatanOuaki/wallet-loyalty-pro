@@ -456,29 +456,45 @@ $("#exportButton").addEventListener("click", async () => {
 
 $("#startCamera").addEventListener("click", async () => {
   try {
-    if (!("BarcodeDetector" in window)) {
-      toast("BarcodeDetector non supporte. Utilise la saisie manuelle.");
-      return;
-    }
+    clearInterval(app.scanTimer);
+    app.cameraStream?.getTracks().forEach((track) => track.stop());
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error("camera non supportee par ce navigateur");
     app.cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
     const video = $("#cameraPreview");
+    const status = $("#cameraStatus");
     video.srcObject = app.cameraStream;
     video.classList.remove("hidden");
+    status.classList.remove("hidden");
     await video.play();
+    if (!("BarcodeDetector" in window)) {
+      status.textContent = "Camera active. Lecture QR automatique non supportee ici : tape l'ID affiche sur la carte.";
+      toast("Camera active. Saisie manuelle de l'ID requise sur ce navigateur.");
+      return;
+    }
+    status.textContent = "Camera active. Place le QR code de la carte devant l'objectif.";
     const detector = new BarcodeDetector({ formats: ["qr_code", "code_128"] });
     app.scanTimer = setInterval(async () => {
       const codes = await detector.detect(video).catch(() => []);
-      if (codes[0]?.rawValue) $("#scanMemberId").value = codes[0].rawValue;
+      if (codes[0]?.rawValue) {
+        $("#scanMemberId").value = codes[0].rawValue;
+        status.textContent = `Carte detectee : ${codes[0].rawValue}`;
+      }
     }, 900);
   } catch (error) {
     toast(`Camera indisponible: ${error.message}`);
+    $("#cameraStatus").classList.remove("hidden");
+    $("#cameraStatus").textContent = `Camera indisponible : ${error.message}. Utilise la saisie manuelle.`;
   }
 });
 
 $("#stopCamera").addEventListener("click", () => {
   clearInterval(app.scanTimer);
   app.cameraStream?.getTracks().forEach((track) => track.stop());
+  app.scanTimer = null;
+  app.cameraStream = null;
   $("#cameraPreview").classList.add("hidden");
+  $("#cameraStatus").classList.add("hidden");
+  $("#cameraStatus").textContent = "";
 });
 
 window.addEventListener("hashchange", () => {

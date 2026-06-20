@@ -252,7 +252,7 @@ function hydrateCustomer(db, customer) {
     cyclePoints: ((points % program.target) + program.target) % program.target,
     rewardsAvailable: Math.floor(points / program.target),
     passUrls: {
-      apple: `${BASE_URL}/api/wallet/apple/${customer.id}.pkpass`,
+      apple: `${BASE_URL}/api/wallet/apple/${customer.id}`,
       google: `${BASE_URL}/api/wallet/google/${customer.id}`
     }
   };
@@ -692,14 +692,19 @@ async function api(req, res) {
     return;
   }
 
-  const appleMatch = url.pathname.match(/^\/api\/wallet\/apple\/([^/]+)\.pkpass$/);
+  const appleMatch = url.pathname.match(/^\/api\/wallet\/apple\/([^/.]+)(?:\.pkpass)?$/);
   if (method === "GET" && appleMatch) {
     const customer = db.customers.find((item) => item.id === appleMatch[1]);
     if (!customer) return sendError(res, 404, "Carte introuvable");
     const ready = walletConfigStatus().apple.ready;
+    if (!ready) {
+      res.writeHead(302, { Location: `/wallet-demo.html?platform=apple&member=${encodeURIComponent(customer.memberId)}` });
+      res.end();
+      return;
+    }
     send(res, 200, signedPkpass(db, customer), {
-      "Content-Type": ready ? "application/vnd.apple.pkpass" : "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${customer.memberId}.pkpass"`
+      "Content-Type": "application/vnd.apple.pkpass",
+      "Content-Disposition": `inline; filename="${customer.memberId}.pkpass"`
     });
     return;
   }
