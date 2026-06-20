@@ -2,6 +2,7 @@ services:
   - type: web
     name: wallet-loyalty-pro
     runtime: node
+    plan: free
     buildCommand: npm install --omit=dev
     startCommand: npm start
     healthCheckPath: /api/health
@@ -11,7 +12,7 @@ services:
       - key: BASE_URL
         sync: false
       - key: DB_FILE
-        value: /var/data/db.json
+        value: data/render-db.json
       - key: APPLE_PASS_TYPE_ID
         sync: false
       - key: APPLE_TEAM_ID
@@ -26,7 +27,3 @@ services:
         sync: false
       - key: GOOGLE_SERVICE_ACCOUNT_JSON
         sync: false
-    disk:
-      name: wallet-loyalty-data
-      mountPath: /var/data
-      sizeGB: 1
